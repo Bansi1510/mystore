@@ -19,7 +19,7 @@ async function login(req, res, next) {
     const lowerInput = trimmedInput.toLowerCase();
     let role = null;
 
-    // --- Check Normal User Credentials ---
+    // --- 1. Check Normal User Static Password ---
     if (config.normalUserPassword) {
       const normalPass = config.normalUserPassword.trim();
       if (trimmedInput === normalPass || lowerInput === normalPass.toLowerCase()) {
@@ -27,28 +27,10 @@ async function login(req, res, next) {
       }
     }
 
-    if (!role && config.normalUserHash) {
-      const isNormalHashMatch =
-        (await bcrypt.compare(trimmedInput, config.normalUserHash)) ||
-        (await bcrypt.compare(lowerInput, config.normalUserHash));
-      if (isNormalHashMatch) {
-        role = 'user';
-      }
-    }
-
-    // --- Check Admin Credentials ---
+    // --- 2. Check Admin Static Password ---
     if (!role && config.adminPassword) {
       const adminPass = config.adminPassword.trim();
       if (trimmedInput === adminPass || lowerInput === adminPass.toLowerCase()) {
-        role = 'admin';
-      }
-    }
-
-    if (!role && config.adminHash) {
-      const isAdminHashMatch =
-        (await bcrypt.compare(trimmedInput, config.adminHash)) ||
-        (await bcrypt.compare(lowerInput, config.adminHash));
-      if (isAdminHashMatch) {
         role = 'admin';
       }
     }

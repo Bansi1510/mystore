@@ -18,9 +18,7 @@ const config = {
   jwtSecret: process.env.JWT_SECRET || '',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '',
   normalUserPassword: process.env.NORMAL_USER_PASSWORD || '',
-  normalUserHash: process.env.NORMAL_USER_PASSWORD_HASH || '',
   adminPassword: process.env.ADMIN_PASSWORD || '',
-  adminHash: process.env.ADMIN_PASSWORD_HASH || '',
   maxFileSizeMb: parseInt(process.env.MAX_FILE_SIZE_MB || '100', 10),
   totalStorageLimitGb: parseInt(process.env.TOTAL_STORAGE_LIMIT_GB || '100', 10),
 };
@@ -30,19 +28,19 @@ function validateEnv() {
   const errors = [];
 
   if (!config.mongoUri) {
-    warnings.push('MONGODB_URI is missing. Database operations will return configuration errors.');
+    warnings.push('MONGODB_URI is missing.');
   }
 
   if (!config.cloudinary.cloudName || !config.cloudinary.apiKey || !config.cloudinary.apiSecret) {
-    warnings.push('Cloudinary credentials (CLOUD_NAME / CLOUDINARY_CLOUD_NAME, API_KEY, API_SECRET) are missing.');
+    warnings.push('Cloudinary credentials are missing.');
   }
 
-  if (!config.normalUserPassword && !config.normalUserHash) {
-    warnings.push('NORMAL_USER_PASSWORD or NORMAL_USER_PASSWORD_HASH is missing in .env.');
+  if (!config.normalUserPassword) {
+    warnings.push('NORMAL_USER_PASSWORD is missing in .env.');
   }
 
-  if (!config.adminPassword && !config.adminHash) {
-    warnings.push('ADMIN_PASSWORD or ADMIN_PASSWORD_HASH is missing in .env.');
+  if (!config.adminPassword) {
+    warnings.push('ADMIN_PASSWORD is missing in .env.');
   }
 
   if (!config.jwtSecret) {
