@@ -27,7 +27,12 @@ export const useAuthStore = create((set, get) => ({
 
       return { success: true, role: user.role };
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed. Please check your password.';
+      let message = 'Login failed. Please check your password.';
+      if (err.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err.code === 'ERR_NETWORK' || !err.response) {
+        message = 'Unable to connect to backend server. Please verify backend on port 5050.';
+      }
       set({ isLoading: false, error: message });
       return { success: false, error: message };
     }

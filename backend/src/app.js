@@ -25,16 +25,9 @@ app.use(helmet({
 }));
 
 // CORS Configuration
-const allowedOrigins = [config.clientUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'];
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: (origin, callback) => callback(null, true),
     credentials: true,
   })
 );
