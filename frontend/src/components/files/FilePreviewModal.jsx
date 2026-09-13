@@ -73,7 +73,8 @@ export default function FilePreviewModal() {
 
     if (category === 'pdf') {
       const token = localStorage.getItem('auth_token') || '';
-      const viewUrl = `/api/files/${previewItem._id}/view?token=${encodeURIComponent(token)}`;
+      const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const viewUrl = `${apiBase}/files/${previewItem._id}/view?token=${encodeURIComponent(token)}`;
       return (
         <div className="flex-1 h-[75vh] w-full bg-slate-900 rounded-2xl overflow-hidden p-1">
           <iframe

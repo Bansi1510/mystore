@@ -5,7 +5,8 @@ export function triggerFileDownload(file) {
   if (!file) return;
 
   const token = localStorage.getItem('auth_token') || '';
-  const downloadUrl = `/api/files/${file._id}/download?token=${encodeURIComponent(token)}`;
+  const apiBase = import.meta.env.VITE_API_URL || '/api';
+  const downloadUrl = `${apiBase}/files/${file._id}/download?token=${encodeURIComponent(token)}`;
 
   const link = document.createElement('a');
   link.href = downloadUrl;
