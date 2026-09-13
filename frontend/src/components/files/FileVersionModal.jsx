@@ -4,6 +4,7 @@ import { useDriveStore } from '../../store/driveStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { formatBytes, formatDate } from '../../utils/formatters';
 import api from '../../services/api';
+import { triggerFileDownload } from '../../utils/downloadHelper';
 
 export default function FileVersionModal() {
   const { isVersionModalOpen, versionTargetFile, setVersionModalOpen, refreshFolder } = useDriveStore();
@@ -115,16 +116,13 @@ export default function FileVersionModal() {
                     {formatBytes(ver.size)} • {formatDate(ver.createdAt)}
                   </div>
                 </div>
-                <a
-                  href={ver.cloudinaryUrl}
-                  download
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  onClick={() => triggerFileDownload({ _id: versionTargetFile._id, filename: `v${ver.versionNumber}_${versionTargetFile.filename}` })}
                   className="p-2 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-200 dark:hover:bg-slate-700"
                   title="Download Version"
                 >
                   <Download className="w-4 h-4" />
-                </a>
+                </button>
               </div>
             ))
           )}

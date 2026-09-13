@@ -1,3 +1,5 @@
+const https = require('https');
+const http = require('http');
 const mongoose = require('mongoose');
 const File = require('../models/File');
 const Folder = require('../models/Folder');
@@ -6,6 +8,47 @@ const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudi
 const { logActivity } = require('../services/activityService');
 const { getFileCategory, calculateChecksum } = require('../utils/helper');
 const { streamZipArchive } = require('../services/zipService');
+
+/**
+ * Stream file content from remote cloud URL directly to HTTP response
+ */
+function streamFromUrl(url, res, options = {}) {
+  const protocol = url.startsWith('https') ? https : http;
+
+  protocol.get(url, (cloudRes) => {
+    if (cloudRes.statusCode >= 400) {
+      if (!res.headersSent) {
+        return res.status(cloudRes.statusCode).json({
+          success: false,
+          message: 'Failed to retrieve file from cloud storage.',
+        });
+      }
+      return;
+    }
+
+    if (options.contentType) {
+      res.setHeader('Content-Type', options.contentType);
+    } else if (cloudRes.headers['content-type']) {
+      res.setHeader('Content-Type', cloudRes.headers['content-type']);
+    }
+
+    if (options.contentDisposition) {
+      res.setHeader('Content-Disposition', options.contentDisposition);
+    }
+
+    if (cloudRes.headers['content-length']) {
+      res.setHeader('Content-Length', cloudRes.headers['content-length']);
+    }
+
+    cloudRes.pipe(res);
+  }).on('error', (err) => {
+    console.error('Error streaming file from Cloudinary:', err.message);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: 'File stream error.' });
+    }
+  });
+}
+
 
 /**
  * Single file upload
@@ -195,7 +238,7 @@ async function getFileDetails(req, res, next) {
 }
 
 /**
- * Download file
+ * Download file (Forces browser download with original filename)
  */
 async function downloadFile(req, res, next) {
   try {
@@ -210,11 +253,40 @@ async function downloadFile(req, res, next) {
       itemType: 'file',
       itemId: file._id,
       itemName: file.filename,
-      role: req.user.role,
+      role: req.user ? req.user.role : 'public',
       req,
     });
 
-    return res.redirect(file.cloudinaryUrl);
+    const safeFilename = encodeURIComponent(file.filename);
+    const contentDisposition = `attachment; filename="${safeFilename}"; filename*=UTF-8''${safeFilename}`;
+
+    return streamFromUrl(file.cloudinaryUrl, res, {
+      contentType: file.mimeType || 'application/octet-stream',
+      contentDisposition,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * View / Stream file inline for browser preview
+ */
+async function viewFile(req, res, next) {
+  try {
+    const { fileId } = req.params;
+    const file = await File.findById(fileId);
+    if (!file) {
+      return res.status(404).json({ success: false, message: 'File not found.' });
+    }
+
+    const safeFilename = encodeURIComponent(file.filename);
+    const contentDisposition = `inline; filename="${safeFilename}"; filename*=UTF-8''${safeFilename}`;
+
+    return streamFromUrl(file.cloudinaryUrl, res, {
+      contentType: file.mimeType || 'application/octet-stream',
+      contentDisposition,
+    });
   } catch (error) {
     next(error);
   }
@@ -667,6 +739,7 @@ module.exports = {
   uploadMultipleFiles,
   getFileDetails,
   downloadFile,
+  viewFile,
   renameFile,
   moveFile,
   copyFile,

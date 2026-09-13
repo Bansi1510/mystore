@@ -6,6 +6,7 @@ const {
   uploadMultipleFiles,
   getFileDetails,
   downloadFile,
+  viewFile,
   renameFile,
   moveFile,
   copyFile,
@@ -32,6 +33,7 @@ router.post('/bulk', bulkAction);
 
 router.get('/:fileId', getFileDetails);
 router.get('/:fileId/download', downloadFile);
+router.get('/:fileId/view', viewFile);
 router.patch('/:fileId/rename', renameFile);
 router.patch('/:fileId/move', moveFile);
 router.post('/:fileId/copy', copyFile);

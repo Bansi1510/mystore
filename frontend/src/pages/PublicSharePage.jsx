@@ -4,6 +4,8 @@ import { Share2, Download, Lock, AlertCircle, HardDrive, FileText } from 'lucide
 import { formatBytes } from '../utils/formatters';
 import api from '../services/api';
 
+import { triggerFileDownload } from '../utils/downloadHelper';
+
 export default function PublicSharePage() {
   const { token } = useParams();
   const [password, setPassword] = useState('');
@@ -120,16 +122,13 @@ export default function PublicSharePage() {
         </div>
 
         {share.allowDownload && (
-          <a
-            href={targetData.cloudinaryUrl}
-            download
-            target="_blank"
-            rel="noreferrer"
+          <button
+            onClick={() => triggerFileDownload(targetData)}
             className="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all"
           >
             <Download className="w-4 h-4" />
             <span>Download Shared File</span>
-          </a>
+          </button>
         )}
       </div>
     </div>

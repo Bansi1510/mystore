@@ -14,6 +14,7 @@ import {
 import { useDriveStore } from '../../store/driveStore';
 import { formatBytes, formatDate } from '../../utils/formatters';
 import api from '../../services/api';
+import { triggerFileDownload } from '../../utils/downloadHelper';
 
 export default function FilePreviewModal() {
   const { previewItem, closePreview } = useDriveStore();
@@ -71,12 +72,14 @@ export default function FilePreviewModal() {
     }
 
     if (category === 'pdf') {
+      const token = localStorage.getItem('auth_token') || '';
+      const viewUrl = `/api/files/${previewItem._id}/view?token=${encodeURIComponent(token)}`;
       return (
-        <div className="flex-1 h-[75vh] w-full">
+        <div className="flex-1 h-[75vh] w-full bg-slate-900 rounded-2xl overflow-hidden p-1">
           <iframe
-            src={previewItem.cloudinaryUrl}
+            src={viewUrl}
             title={previewItem.filename}
-            className="w-full h-full rounded-2xl border-0"
+            className="w-full h-full rounded-2xl border-0 bg-white"
           />
         </div>
       );
@@ -152,16 +155,13 @@ export default function FilePreviewModal() {
         <p className="text-sm text-slate-500 max-w-xs">
           Direct preview is not supported for this file type ({previewItem.extension || 'file'}).
         </p>
-        <a
-          href={previewItem.cloudinaryUrl}
-          download
-          target="_blank"
-          rel="noreferrer"
+        <button
+          onClick={() => triggerFileDownload(previewItem)}
           className="px-6 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-medium shadow-lg shadow-brand-500/25 flex items-center gap-2"
         >
           <Download className="w-4 h-4" />
           <span>Download File</span>
-        </a>
+        </button>
       </div>
     );
   };
@@ -210,16 +210,13 @@ export default function FilePreviewModal() {
               </>
             )}
 
-            <a
-              href={previewItem.cloudinaryUrl}
-              download
-              target="_blank"
-              rel="noreferrer"
+            <button
+              onClick={() => triggerFileDownload(previewItem)}
               className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               title="Download"
             >
               <Download className="w-4 h-4" />
-            </a>
+            </button>
 
             <button
               onClick={closePreview}

@@ -20,12 +20,18 @@ async function uploadToCloudinary(buffer, originalName, mimeType, folderPath = '
 
   const resourceType = getResourceType(mimeType);
 
+  const path = require('path');
+  const ext = path.extname(originalName) || '';
+  const baseName = path.basename(originalName, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const customPublicId = `${baseName}_${Date.now()}${ext}`;
+
   return new Promise((resolve, reject) => {
     const uploadOptions = {
       folder: folderPath,
       resource_type: resourceType,
+      public_id: customPublicId,
       use_filename: true,
-      unique_filename: true,
+      unique_filename: false,
     };
 
     const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {

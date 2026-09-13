@@ -16,6 +16,7 @@ import {
 import { getFileIcon } from '../../utils/fileIcons';
 import { formatBytes } from '../../utils/formatters';
 import { useDriveStore } from '../../store/driveStore';
+import { triggerFileDownload } from '../../utils/downloadHelper';
 
 export default function FileCard({ item, isFolder = false }) {
   const navigate = useNavigate();
@@ -128,17 +129,17 @@ export default function FileCard({ item, isFolder = false }) {
                         <span>Preview</span>
                       </button>
 
-                      <a
-                        href={item.cloudinaryUrl}
-                        download
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors"
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsMenuOpen(false);
+                          triggerFileDownload(item);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors text-left"
                       >
                         <Download className="w-4 h-4 text-emerald-500" />
                         <span>Download</span>
-                      </a>
+                      </button>
 
                       <button
                         onClick={(e) => {

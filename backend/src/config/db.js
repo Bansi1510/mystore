@@ -1,51 +1,38 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
 const { config } = require('./env');
 
+// Fix DNS resolution issues on Windows for MongoDB Atlas SRV records
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+  console.warn('DNS server configuration warning:', e.message);
+}
+
 let isConnected = false;
-let mongod = null;
 
 async function connectDB() {
   mongoose.set('strictQuery', true);
 
-  // 1. Try provided MONGODB_URI (MongoDB Atlas or custom URI)
-  if (config.mongoUri) {
-    try {
-      console.log(`📡 Connecting to Primary MONGODB_URI...`);
-      await mongoose.connect(config.mongoUri, {
-        serverSelectionTimeoutMS: 4000,
-        family: 4,
-      });
-      isConnected = true;
-      console.log(`✅ Primary MongoDB Connected successfully to: ${mongoose.connection.host}`);
-      return true;
-    } catch (error) {
-      console.warn(`⚠️ Primary MongoDB Connection Warning (${error.message}). Attempting local/dev database fallback...`);
-    }
+  if (!config.mongoUri) {
+    console.error('❌ MONGODB_URI is missing in .env configuration');
+    isConnected = false;
+    return false;
   }
 
-  // 2. Try Local MongoDB (mongodb://127.0.0.1:27017/cloud_file_manager)
   try {
-    const localUri = 'mongodb://127.0.0.1:27017/cloud_file_manager';
-    await mongoose.connect(localUri, { serverSelectionTimeoutMS: 3000 });
+    const sanitizedUri = config.mongoUri.replace(/:([^@]+)@/, ':****@');
+    console.log(`📡 Connecting to Primary MONGODB_URI (${sanitizedUri})...`);
+    await mongoose.connect(config.mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+    });
     isConnected = true;
-    console.log(`✅ Local MongoDB Connected successfully at: ${localUri}`);
+    console.log(`✅ Primary MongoDB Atlas Connected successfully to host: ${mongoose.connection.host}`);
     return true;
-  } catch (localError) {
-    // 3. Fallback to MongoMemoryServer (In-Memory MongoDB)
-    try {
-      const { MongoMemoryServer } = require('mongodb-memory-server');
-      mongod = await MongoMemoryServer.create();
-      const memoryUri = mongod.getUri();
-      await mongoose.connect(memoryUri);
-      isConnected = true;
-      console.log(`✅ Dev In-Memory MongoDB Server Connected successfully at: ${memoryUri}`);
-      console.log(`💡 All database operations (Folder Creation, Search, Trash, Admin) are FULLY ACTIVE!`);
-      return true;
-    } catch (memError) {
-      console.error(`❌ Database Connection Error: ${memError.message}`);
-      isConnected = false;
-      return false;
-    }
+  } catch (error) {
+    console.error(`❌ MongoDB Connection Error (${config.mongoUri}): ${error.message}`);
+    isConnected = false;
+    return false;
   }
 }
 

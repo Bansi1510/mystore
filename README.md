@@ -6,43 +6,46 @@ A complete, production-quality personal cloud file storage web application inspi
 
 ## Environment Variable Configuration Model
 
-All backend environment configuration variables strictly follow `process.env.VARIABLE || ''` access patterns. Zero secrets or API credentials are hardcoded into source code.
+All backend environment configuration variables strictly follow `process.env.VARIABLE || ''` access patterns. Zero secrets, passwords, or credentials are hardcoded into source code.
 
-Refer to `.env.example` to set up your `.env` file:
+Refer to `.env.example` to set up your environment variables:
 
 ```env
-PORT=5000
-NODE_ENV=development
-CLIENT_URL=http://localhost:5173
+PORT=5050
+NODE_ENV=production
+CLIENT_URL=https://your-frontend-domain.onrender.com
 
-# Database Connection
-MONGODB_URI=mongodb+srv://username:password@cluster0.example.mongodb.net/cloud_file_manager
+# Database Connection (MongoDB Atlas)
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/cloud_file_manager?retryWrites=true&w=majority
 
 # Cloudinary Credentials
-CLOUD_NAME=djlwr1lp5
-CLOUD_API_KEY=476423574255386
-CLOUD_API_SECRET=m1oyEgHeTGbk3kT32eV8AxS3YAw
+CLOUD_NAME=your_cloudinary_cloud_name
+CLOUD_API_KEY=your_cloudinary_api_key
+CLOUD_API_SECRET=your_cloudinary_api_secret
 
 # JWT Secrets
-JWT_SECRET=BansiAaru1510
-JWT_REFRESH_SECRET=AaruBansi1510
+JWT_SECRET=your_jwt_secret_key_min_32_chars
+JWT_REFRESH_SECRET=your_jwt_refresh_secret_key_min_32_chars
 
-# Authentication Hashes (Bcrypt hashes generated using node backend/src/utils/hashPassword.js <password>)
-NORMAL_USER_PASSWORD_HASH=$2a$10$2YVy9r708/3Kxbn6HSO7sO2MOiLg22egCac1ey44SaovLcKYMVTte
-ADMIN_PASSWORD_HASH=$2a$10$1ElCsQ4akgLpwZQT3KnmC.Z2kHsqTayiVfpPktXHBmiRqZtJ3fzi.
+# Authentication Credentials (Plaintext OR Bcrypt Hashes)
+NORMAL_USER_PASSWORD=your_normal_user_password
+NORMAL_USER_PASSWORD_HASH=your_normal_user_bcrypt_hash
 
-# Limits
+ADMIN_PASSWORD=your_admin_password
+ADMIN_PASSWORD_HASH=your_admin_bcrypt_hash
+
+# Storage & Upload Limits
 MAX_FILE_SIZE_MB=100
 TOTAL_STORAGE_LIMIT_GB=100
 ```
 
 ---
 
-## Quick Run & Test Commands
+## Quick Run Commands
 
-### 1. Run Development Mode
+### 1. Development Mode
 ```bash
-# Terminal 1: Backend Server (Port 5000)
+# Terminal 1: Backend Server (Port 5050)
 cd backend
 npm run dev
 
@@ -51,13 +54,13 @@ cd frontend
 npm run dev
 ```
 
-### 2. Run Integration Tests
+### 2. Integration Test Suite
 ```bash
 cd backend
 npm test
 ```
 
-### 3. Build for Production
+### 3. Production Frontend Build
 ```bash
 cd frontend
 npm run build
@@ -65,7 +68,7 @@ npm run build
 
 ---
 
-## Full Documentation & Deployment Guide
+## Production Deployment Guide (Render.com)
 
-For step-by-step production deployment instructions (Vercel, Render, Railway, Ubuntu VPS, Nginx, PM2, Docker, Certbot SSL), see:
+For complete step-by-step instructions on deploying the full stack app on Render.com, MongoDB Atlas, and Cloudinary, see:
 👉 **[DEPLOYMENT_GUIDE.md](file:///e:/project/file%20manager/DEPLOYMENT_GUIDE.md)**

@@ -9,7 +9,13 @@
     "test": "jest --detectOpenHandles --forceExit",
     "hash": "node src/utils/hashPassword.js"
   },
-  "keywords": ["cloud", "file-manager", "express", "mongodb", "cloudinary"],
+  "keywords": [
+    "cloud",
+    "file-manager",
+    "express",
+    "mongodb",
+    "cloudinary"
+  ],
   "author": "Antigravity",
   "license": "MIT",
   "dependencies": {
@@ -29,6 +35,7 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0"
   },
