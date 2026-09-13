@@ -3,6 +3,7 @@ const Folder = require('../models/Folder');
 const File = require('../models/File');
 const { logActivity } = require('../services/activityService');
 const { deleteFromCloudinary } = require('../services/cloudinaryService');
+const { isDbConnected } = require('../config/db');
 
 /**
  * Helper to build breadcrumb chain from current folder up to root
@@ -43,6 +44,13 @@ async function isDescendantFolder(targetFolderId, destinationFolderId) {
  */
 async function createFolder(req, res, next) {
   try {
+    if (!isDbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database is not connected. Folder creation requires MongoDB.',
+      });
+    }
+
     const { name, parentFolder } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -103,6 +111,16 @@ async function createFolder(req, res, next) {
  */
 async function getFolder(req, res, next) {
   try {
+    if (!isDbConnected()) {
+      return res.status(200).json({
+        success: true,
+        currentFolder: null,
+        breadcrumbs: [],
+        subfolders: [],
+        files: [],
+      });
+    }
+
     const { folderId } = req.params;
     let targetFolderId = null;
     let currentFolder = null;
@@ -181,7 +199,7 @@ async function renameFolder(req, res, next) {
 async function moveFolder(req, res, next) {
   try {
     const { folderId } = req.params;
-    const { destinationFolderId } = req.body; // null for root
+    const { destinationFolderId } = req.body;
 
     const folder = await Folder.findOne({ _id: folderId, isTrashed: false });
     if (!folder) {
@@ -241,7 +259,7 @@ async function starFolder(req, res, next) {
 }
 
 /**
- * Soft delete folder (move to trash)
+ * Soft delete folder
  */
 async function softDeleteFolder(req, res, next) {
   try {
@@ -252,7 +270,6 @@ async function softDeleteFolder(req, res, next) {
       return res.status(404).json({ success: false, message: 'Folder not found.' });
     }
 
-    // Helper recursive function to mark folder and children as trashed
     async function trashRecursive(fId) {
       await Folder.findByIdAndUpdate(fId, { isTrashed: true, deletedAt: new Date() });
       await File.updateMany({ parentFolder: fId }, { isTrashed: true, deletedAt: new Date() });
@@ -321,7 +338,6 @@ async function permanentDeleteFolder(req, res, next) {
     const { folderId } = req.params;
 
     async function deleteRecursive(fId) {
-      // Find files in folder and delete Cloudinary assets
       const files = await File.find({ parentFolder: fId });
       for (const file of files) {
         try {

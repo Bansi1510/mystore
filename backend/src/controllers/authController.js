@@ -15,20 +15,40 @@ async function login(req, res, next) {
       });
     }
 
+    const trimmedInput = password.trim();
+    const lowerInput = trimmedInput.toLowerCase();
     let role = null;
 
-    // Check normal user hash
-    if (config.normalUserHash) {
-      const isNormalUser = await bcrypt.compare(password, config.normalUserHash);
-      if (isNormalUser) {
+    // --- Check Normal User Credentials ---
+    if (config.normalUserPassword) {
+      const normalPass = config.normalUserPassword.trim();
+      if (trimmedInput === normalPass || lowerInput === normalPass.toLowerCase()) {
         role = 'user';
       }
     }
 
-    // Check admin user hash if not normal user
+    if (!role && config.normalUserHash) {
+      const isNormalHashMatch =
+        (await bcrypt.compare(trimmedInput, config.normalUserHash)) ||
+        (await bcrypt.compare(lowerInput, config.normalUserHash));
+      if (isNormalHashMatch) {
+        role = 'user';
+      }
+    }
+
+    // --- Check Admin Credentials ---
+    if (!role && config.adminPassword) {
+      const adminPass = config.adminPassword.trim();
+      if (trimmedInput === adminPass || lowerInput === adminPass.toLowerCase()) {
+        role = 'admin';
+      }
+    }
+
     if (!role && config.adminHash) {
-      const isAdminUser = await bcrypt.compare(password, config.adminHash);
-      if (isAdminUser) {
+      const isAdminHashMatch =
+        (await bcrypt.compare(trimmedInput, config.adminHash)) ||
+        (await bcrypt.compare(lowerInput, config.adminHash));
+      if (isAdminHashMatch) {
         role = 'admin';
       }
     }
@@ -50,7 +70,7 @@ async function login(req, res, next) {
     }
 
     // Sign JWT token
-    const token = jwt.sign({ role }, config.jwtSecret, {
+    const token = jwt.sign({ role }, config.jwtSecret || 'fallback_secret', {
       expiresIn: '7d',
     });
 

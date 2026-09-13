@@ -1,9 +1,20 @@
 const File = require('../models/File');
 const Folder = require('../models/Folder');
+const { isDbConnected } = require('../config/db');
 
 async function search(req, res, next) {
   try {
     const { q, category, isStarred, isTrashed, minSize, maxSize, page = 1, limit = 50 } = req.query;
+
+    if (!isDbConnected()) {
+      return res.status(200).json({
+        success: true,
+        query: q || '',
+        files: [],
+        folders: [],
+        pagination: { page: 1, limit: parseInt(limit, 10), totalFiles: 0, totalFolders: 0 },
+      });
+    }
 
     const fileQuery = {};
     const folderQuery = {};

@@ -1,7 +1,12 @@
 const Notification = require('../models/Notification');
+const { isDbConnected } = require('../config/db');
 
 async function getNotifications(req, res, next) {
   try {
+    if (!isDbConnected()) {
+      return res.status(200).json({ success: true, notifications: [], unreadCount: 0 });
+    }
+
     const role = req.user.role;
     const notifications = await Notification.find({
       role: { $in: [role, 'all'] },
@@ -27,6 +32,9 @@ async function getNotifications(req, res, next) {
 
 async function markAsRead(req, res, next) {
   try {
+    if (!isDbConnected()) {
+      return res.status(200).json({ success: true, message: 'DB disconnected' });
+    }
     const { id } = req.params;
     await Notification.findByIdAndUpdate(id, { isRead: true });
     return res.status(200).json({ success: true, message: 'Notification marked as read.' });
@@ -37,6 +45,9 @@ async function markAsRead(req, res, next) {
 
 async function markAllAsRead(req, res, next) {
   try {
+    if (!isDbConnected()) {
+      return res.status(200).json({ success: true, message: 'DB disconnected' });
+    }
     const role = req.user.role;
     await Notification.updateMany({ role: { $in: [role, 'all'] }, isRead: false }, { isRead: true });
     return res.status(200).json({ success: true, message: 'All notifications marked as read.' });

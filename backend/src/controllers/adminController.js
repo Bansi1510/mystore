@@ -10,6 +10,31 @@ async function getAdminDashboard(req, res, next) {
   try {
     const totalLimitBytes = config.totalStorageLimitGb * 1024 * 1024 * 1024;
 
+    if (!isDbConnected()) {
+      return res.status(200).json({
+        success: true,
+        stats: {
+          totalFiles: 0,
+          totalFolders: 0,
+          trashedFilesCount: 0,
+          trashedFoldersCount: 0,
+          uploadsCount: 0,
+          downloadsCount: 0,
+          usedStorageBytes: 0,
+          trashStorageBytes: 0,
+          totalLimitBytes,
+          availableStorageBytes: totalLimitBytes,
+        },
+        categoryDistribution: [],
+        recentActivities: [],
+        systemHealth: {
+          database: 'disconnected',
+          cloudinary: isCloudinaryConfigured() ? 'configured' : 'not_configured',
+          environment: config.nodeEnv,
+        },
+      });
+    }
+
     const [totalFiles, totalFolders, trashedFilesCount, trashedFoldersCount, uploadsCount, downloadsCount] =
       await Promise.all([
         File.countDocuments({ isTrashed: false }),
@@ -73,8 +98,15 @@ async function getAdminDashboard(req, res, next) {
 
 async function getAllFilesAdmin(req, res, next) {
   try {
-    const { search, page = 1, limit = 50 } = req.query;
+    if (!isDbConnected()) {
+      return res.status(200).json({
+        success: true,
+        files: [],
+        pagination: { page: 1, limit: 50, total: 0 },
+      });
+    }
 
+    const { search, page = 1, limit = 50 } = req.query;
     const query = {};
     if (search) {
       query.filename = { $regex: search, $options: 'i' };
@@ -103,11 +135,13 @@ async function getAllFilesAdmin(req, res, next) {
 
 async function getAdminSettings(req, res, next) {
   try {
-    const settings = await SystemSetting.find().lean();
-    const settingsMap = {};
-    settings.forEach((s) => {
-      settingsMap[s.key] = s.value;
-    });
+    let settingsMap = {};
+    if (isDbConnected()) {
+      const settings = await SystemSetting.find().lean();
+      settings.forEach((s) => {
+        settingsMap[s.key] = s.value;
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -125,6 +159,13 @@ async function getAdminSettings(req, res, next) {
 
 async function updateAdminSettings(req, res, next) {
   try {
+    if (!isDbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database is not connected. Settings cannot be persisted.',
+      });
+    }
+
     const { maxFileSizeMb, totalStorageLimitGb, defaultShareExpirationDays, trashRetentionDays } = req.body;
 
     const updates = [];

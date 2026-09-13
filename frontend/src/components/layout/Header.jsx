@@ -13,6 +13,7 @@ import {
   HardDrive,
   ShieldCheck,
   User,
+  X,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
@@ -26,12 +27,14 @@ export default function Header({ onToggleMobileSidebar, onOpenNotifications }) {
   const { viewMode, setViewMode, searchQuery, setSearchQuery } = useDriveStore();
   const { unreadCount } = useNotificationStore();
   const [searchInput, setSearchInput] = useState(searchQuery);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchInput.trim()) {
       setSearchQuery(searchInput.trim());
       navigate(`/search?q=${encodeURIComponent(searchInput.trim())}`);
+      setIsMobileSearchOpen(false);
     }
   };
 
@@ -42,12 +45,12 @@ export default function Header({ onToggleMobileSidebar, onOpenNotifications }) {
   };
 
   return (
-    <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 z-30 px-4 flex items-center justify-between gap-4">
-      {/* Left: Mobile Toggle & Brand Logo */}
-      <div className="flex items-center gap-3">
+    <header className="h-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl sticky top-0 z-30 px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
+      {/* Left: Mobile Drawer Button & Brand Logo */}
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={onToggleMobileSidebar}
-          className="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           aria-label="Toggle menu"
         >
           <Menu className="w-5 h-5" />
@@ -55,45 +58,73 @@ export default function Header({ onToggleMobileSidebar, onOpenNotifications }) {
 
         <div
           onClick={() => navigate('/drive')}
-          className="flex items-center gap-2.5 cursor-pointer group"
+          className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
             <HardDrive className="w-5 h-5" />
           </div>
-          <div className="hidden sm:block">
-            <span className="font-bold text-slate-900 dark:text-white tracking-tight text-lg leading-none block">
+          <div className="hidden xs:block">
+            <span className="font-extrabold text-slate-900 dark:text-white tracking-tight text-base sm:text-lg leading-none block">
               CloudVault
             </span>
-            <span className="text-[10px] font-medium text-brand-600 dark:text-brand-400 uppercase tracking-widest block">
+            <span className="text-[9px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest block mt-0.5">
               Personal Drive
             </span>
           </div>
         </div>
       </div>
 
-      {/* Middle: Search Input */}
-      <form onSubmit={handleSearchSubmit} className="flex-1 max-w-2xl mx-2">
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* Center: Desktop Search & Mobile Search Overlay */}
+      {!isMobileSearchOpen ? (
+        <form onSubmit={handleSearchSubmit} className="hidden sm:block flex-1 max-w-xl mx-2">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search files, folders, type:pdf, size:>10MB..."
+              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-100/90 dark:bg-slate-800/80 border border-transparent dark:border-slate-700/50 rounded-2xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:bg-white dark:focus:bg-slate-900 transition-all"
+            />
+          </div>
+        </form>
+      ) : (
+        <form onSubmit={handleSearchSubmit} className="flex-1 flex items-center gap-2 sm:hidden">
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search files, folders, or type:pdf, size:>10MB..."
-            className="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800/80 border border-transparent dark:border-slate-700/50 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:bg-white dark:focus:bg-slate-900 transition-all"
+            placeholder="Search..."
+            autoFocus
+            className="w-full px-3 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 rounded-xl focus:outline-none text-slate-900 dark:text-white"
           />
-        </div>
-      </form>
+          <button
+            type="button"
+            onClick={() => setIsMobileSearchOpen(false)}
+            className="p-1.5 text-slate-400"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </form>
+      )}
 
-      {/* Right: Controls & User Info */}
-      <div className="flex items-center gap-2">
+      {/* Right Controls */}
+      <div className="flex items-center gap-1 sm:gap-2">
+        {/* Mobile Search Expand Trigger */}
+        <button
+          onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+          className="sm:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <Search className="w-4.5 h-4.5" />
+        </button>
+
         {/* View Mode Toggle */}
-        <div className="hidden sm:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+        <div className="hidden sm:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-1.5 rounded-md transition-colors ${
+            className={`p-1.5 rounded-lg transition-colors ${
               viewMode === 'grid'
-                ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm'
+                ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-xs'
                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
             }`}
             title="Grid view"
@@ -102,9 +133,9 @@ export default function Header({ onToggleMobileSidebar, onOpenNotifications }) {
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-1.5 rounded-md transition-colors ${
+            className={`p-1.5 rounded-lg transition-colors ${
               viewMode === 'list'
-                ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm'
+                ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-xs'
                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
             }`}
             title="List view"
@@ -117,7 +148,7 @@ export default function Header({ onToggleMobileSidebar, onOpenNotifications }) {
         <button
           onClick={cycleTheme}
           className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title={`Current Theme: ${theme}`}
+          title={`Theme: ${theme}`}
         >
           {theme === 'dark' ? (
             <Moon className="w-4 h-4 text-indigo-400" />
@@ -140,24 +171,19 @@ export default function Header({ onToggleMobileSidebar, onOpenNotifications }) {
           )}
         </button>
 
-        {/* User Role Badge */}
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+        {/* User Role Badge & Logout */}
+        <div className="flex items-center gap-1.5 pl-1.5 sm:pl-2 border-l border-slate-200 dark:border-slate-800">
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+            className={`hidden xs:flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
               user?.role === 'admin'
                 ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
                 : 'bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20'
             }`}
           >
-            {user?.role === 'admin' ? (
-              <ShieldCheck className="w-3.5 h-3.5" />
-            ) : (
-              <User className="w-3.5 h-3.5" />
-            )}
+            {user?.role === 'admin' ? <ShieldCheck className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
             <span className="capitalize">{user?.role || 'User'}</span>
           </div>
 
-          {/* Logout Button */}
           <button
             onClick={() => {
               logout();

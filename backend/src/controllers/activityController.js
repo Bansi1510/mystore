@@ -1,7 +1,16 @@
 const Activity = require('../models/Activity');
+const { isDbConnected } = require('../config/db');
 
 async function getActivities(req, res, next) {
   try {
+    if (!isDbConnected()) {
+      return res.status(200).json({
+        success: true,
+        activities: [],
+        pagination: { page: 1, limit: 50, total: 0 },
+      });
+    }
+
     const { action, role, itemType, page = 1, limit = 50 } = req.query;
 
     const query = {};

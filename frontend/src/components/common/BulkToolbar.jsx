@@ -70,20 +70,22 @@ export default function BulkToolbar() {
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/90 dark:bg-slate-900/95 backdrop-blur-md text-white rounded-full px-5 py-3 shadow-2xl border border-slate-700/60 flex items-center gap-4 animate-in slide-in-from-bottom-6 max-w-2xl w-full mx-auto">
-      <div className="flex items-center gap-2 border-r border-slate-700 pr-4">
-        <span className="w-6 h-6 rounded-full bg-brand-500 font-bold text-xs flex items-center justify-center">
+    <div className="fixed bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur-xl text-white rounded-3xl px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-2xl border border-slate-700/80 flex items-center justify-between gap-2 max-w-xl mx-auto animate-in slide-in-from-bottom-5">
+      {/* Selected badge */}
+      <div className="flex items-center gap-2 pr-2 border-r border-slate-700 shrink-0">
+        <span className="w-6 h-6 rounded-full bg-gradient-to-tr from-brand-500 to-indigo-500 font-bold text-xs flex items-center justify-center shadow-sm">
           {totalSelected}
         </span>
-        <span className="text-sm font-medium text-slate-300">Selected</span>
+        <span className="text-xs font-semibold text-slate-300 hidden xs:inline">Selected</span>
       </div>
 
-      <div className="flex items-center gap-1.5 flex-1 justify-center overflow-x-auto">
+      {/* Action items */}
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
         {!isTrashPage ? (
           <>
             <button
               onClick={handleZipDownload}
-              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Download ZIP"
             >
               <Archive className="w-4 h-4 text-brand-400" />
@@ -92,7 +94,7 @@ export default function BulkToolbar() {
 
             <button
               onClick={() => handleBulkAction('star')}
-              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Star Selected"
             >
               <Star className="w-4 h-4 text-amber-400" />
@@ -101,7 +103,7 @@ export default function BulkToolbar() {
 
             <button
               onClick={() => setFolderPickerOpen(true, { type: 'move', fileIds: selectedFileIds, folderIds: selectedFolderIds })}
-              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Move Selected"
             >
               <FolderInput className="w-4 h-4 text-indigo-400" />
@@ -110,7 +112,7 @@ export default function BulkToolbar() {
 
             <button
               onClick={() => setFolderPickerOpen(true, { type: 'copy', fileIds: selectedFileIds, folderIds: selectedFolderIds })}
-              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 hover:bg-slate-800 rounded-xl text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Copy Selected"
             >
               <Copy className="w-4 h-4 text-emerald-400" />
@@ -119,7 +121,7 @@ export default function BulkToolbar() {
 
             <button
               onClick={() => handleBulkAction('trash')}
-              className="p-2 hover:bg-rose-900/40 rounded-xl text-slate-200 hover:text-rose-400 transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 hover:bg-rose-900/40 rounded-xl text-slate-200 hover:text-rose-400 transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Move to Trash"
             >
               <Trash2 className="w-4 h-4 text-rose-400" />
@@ -130,7 +132,7 @@ export default function BulkToolbar() {
           <>
             <button
               onClick={() => handleBulkAction('restore')}
-              className="p-2 hover:bg-emerald-900/40 rounded-xl text-slate-200 hover:text-emerald-400 transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 hover:bg-emerald-900/40 rounded-xl text-slate-200 hover:text-emerald-400 transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Restore Selected"
             >
               <RotateCcw className="w-4 h-4 text-emerald-400" />
@@ -139,11 +141,11 @@ export default function BulkToolbar() {
 
             <button
               onClick={() => handleBulkAction('permanent_delete')}
-              className="p-2 hover:bg-rose-900/40 rounded-xl text-slate-200 hover:text-rose-400 transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 hover:bg-rose-900/40 rounded-xl text-slate-200 hover:text-rose-400 transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Permanently Delete"
             >
               <Trash2 className="w-4 h-4 text-rose-400" />
-              <span>Delete Permanently</span>
+              <span>Delete</span>
             </button>
           </>
         )}
@@ -151,7 +153,7 @@ export default function BulkToolbar() {
 
       <button
         onClick={clearSelection}
-        className="p-1.5 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors ml-auto"
+        className="p-1.5 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors shrink-0"
         title="Clear Selection"
       >
         <X className="w-4 h-4" />
