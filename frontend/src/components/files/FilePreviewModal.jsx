@@ -76,12 +76,18 @@ export default function FilePreviewModal() {
       const apiBase = getApiBaseUrl();
       const viewUrl = `${apiBase}/files/${previewItem._id}/view?token=${encodeURIComponent(token)}`;
       return (
-        <div className="flex-1 h-[75vh] w-full bg-slate-900 rounded-2xl overflow-hidden p-1">
-          <iframe
-            src={viewUrl}
-            title={previewItem.filename}
-            className="w-full h-full rounded-2xl border-0 bg-white"
-          />
+        <div className="flex-1 w-full h-full min-h-[500px] bg-slate-900 overflow-hidden flex flex-col">
+          <object
+            data={viewUrl}
+            type="application/pdf"
+            className="w-full flex-1 h-full min-h-[500px] border-0"
+          >
+            <iframe
+              src={viewUrl}
+              title={previewItem.filename}
+              className="w-full flex-1 h-full min-h-[500px] border-0 bg-white"
+            />
+          </object>
         </div>
       );
     }
@@ -171,7 +177,7 @@ export default function FilePreviewModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div onClick={closePreview} className="fixed inset-0 bg-slate-950/80 backdrop-blur-md" />
 
-      <div className="relative z-50 w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95">
+      <div className="relative z-50 w-full max-w-5xl h-[85vh] min-h-[550px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in zoom-in-95">
         {/* Header */}
         <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
