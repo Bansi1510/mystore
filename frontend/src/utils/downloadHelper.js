@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from '../services/api';
+
 /**
  * Helper to trigger single file download with exact original filename from backend proxy stream
  */
@@ -5,7 +7,7 @@ export function triggerFileDownload(file) {
   if (!file) return;
 
   const token = localStorage.getItem('auth_token') || '';
-  const apiBase = import.meta.env.VITE_API_URL || '/api';
+  const apiBase = getApiBaseUrl();
   const downloadUrl = `${apiBase}/files/${file._id}/download?token=${encodeURIComponent(token)}`;
 
   const link = document.createElement('a');

@@ -55,7 +55,22 @@ Copy the printed hash into `NORMAL_USER_PASSWORD_HASH` or `ADMIN_PASSWORD_HASH`.
 
 ---
 
-## 3. Step-by-Step Render.com Production Deployment
+## 2. Render.com 1-Click Blueprint Deployment (Recommended)
+
+This repository includes a pre-configured [render.yaml](file:///e:/project/file%20manager/render.yaml) file for automated zero-configuration deployment.
+
+1. Log into your [Render Dashboard](https://dashboard.render.com/).
+2. Click **New +** -> **Blueprint**.
+3. Connect your GitHub / GitLab repository.
+4. Render will automatically detect `render.yaml` and provision both:
+   - **`cloudvault-backend`** (Node.js Express API service)
+   - **`cloudvault-frontend`** (React Vite static site with `/* -> /index.html` SPA routing pre-configured)
+5. Enter your `MONGODB_URI`, `CLOUD_NAME`, `CLOUD_API_KEY`, `CLOUD_API_SECRET`, `NORMAL_USER_PASSWORD`, and `ADMIN_PASSWORD` in the Blueprint prompt.
+6. Click **Apply**. Render will deploy both services automatically!
+
+---
+
+## 3. Manual Render.com Production Deployment
 
 ### Step 3.1: Prepare External Cloud Services
 

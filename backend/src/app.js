@@ -36,6 +36,14 @@ app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Fallback middleware to automatically prepend /api if client omits it (e.g. /auth/login -> /api/auth/login)
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api/') && req.path !== '/api') {
+    req.url = `/api${req.url}`;
+  }
+  next();
+});
+
 // API Route Mounts
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);

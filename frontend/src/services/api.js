@@ -1,10 +1,24 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+export function getApiBaseUrl() {
+  let url = import.meta.env.VITE_API_URL || '/api';
+  if (typeof url === 'string') {
+    url = url.trim();
+    if (!url) return '/api';
+    url = url.replace(/\/+$/, '');
+    if (!url.endsWith('/api')) {
+      url += '/api';
+    }
+  }
+  return url;
+}
+
+const API_BASE = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
+  timeout: 30000, // 30s timeout for Render free tier cold-start wake ups
   headers: {
     'Content-Type': 'application/json',
   },

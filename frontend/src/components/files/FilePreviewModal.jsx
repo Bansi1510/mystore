@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useDriveStore } from '../../store/driveStore';
 import { formatBytes, formatDate } from '../../utils/formatters';
-import api from '../../services/api';
+import api, { getApiBaseUrl } from '../../services/api';
 import { triggerFileDownload } from '../../utils/downloadHelper';
 
 export default function FilePreviewModal() {
@@ -73,7 +73,7 @@ export default function FilePreviewModal() {
 
     if (category === 'pdf') {
       const token = localStorage.getItem('auth_token') || '';
-      const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const apiBase = getApiBaseUrl();
       const viewUrl = `${apiBase}/files/${previewItem._id}/view?token=${encodeURIComponent(token)}`;
       return (
         <div className="flex-1 h-[75vh] w-full bg-slate-900 rounded-2xl overflow-hidden p-1">
